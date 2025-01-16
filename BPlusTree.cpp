@@ -109,20 +109,19 @@ int BPlusTree::height() const {
 
 Node *BPlusTree::findLeaf(const int key) const {
     if (!root) return nullptr;
-
     Node *curr = root;
-
     // Using linear search, since the maximum reasonable k is in the order of 100
     while (!curr->isLeaf) {
         if (key > curr->keys.back()) {
             // shortcut for large insertions
             curr = curr->children.back();
-        } else {
-            // find correct index for key >= previous key
-            auto it = std::lower_bound(curr->keys.begin(), curr->keys.end(), key);
-            int i = static_cast<int>(it - curr->keys.begin());
-            curr = curr->children[i];
+            continue;
         }
+        int i = 0;
+        while (i < (curr->keys.size()) && key >= curr->keys[i]) {
+            ++i;
+        }
+        curr = curr->children[i];
     }
     return curr;
 }
