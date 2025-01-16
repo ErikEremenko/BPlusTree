@@ -25,19 +25,19 @@ void BPlusTree::insert(const int key, const int val) {
         // find the correct leaf node using the given key
         Node *leaf = findLeaf(key);
         if (!leaf) {
-            // only really happens if there is no root node
+            // only really happens if there is no root node or the tree is invalid
             return;
         }
 
-        int i = 0;
-        while (i < leaf->keys.size() && leaf->keys[i] < key) {
-            ++i;
-        }
-        if (i < leaf->keys.size() && leaf->keys[i] == key) {
+        // find correct insertion position using binary search
+        auto it = std::lower_bound(leaf->keys.begin(), leaf->keys.end(), key);
+        int i = static_cast<int>(it - leaf->keys.begin());
+
+        if (it < leaf->keys.end() && *it == key) {
             // key exists, update value
             leaf->vals[i] = val;
         } else {
-            leaf->keys.insert(leaf->keys.begin() + i, key);
+            leaf->keys.insert(it, key);
             leaf->vals.insert(leaf->vals.begin() + i, val);
 
             // split if necessary
@@ -54,7 +54,7 @@ bool BPlusTree::lookup(const int key, int val) const {
 
 int BPlusTree::lookup(const int key) const {
     const Node *leaf = findLeaf(key);
-    if (leaf == nullptr) return INT_MIN; // this should never happen
+    if (leaf == nullptr) return INT_MIN; // this should never happen if root is set
 
     for (int i = 0; i < leaf->keys.size(); ++i) {
         // The key is not contained in the vector, abort search with error value
@@ -117,14 +117,12 @@ Node *BPlusTree::findLeaf(const int key) const {
         if (key > curr->keys.back()) {
             // shortcut for large insertions
             curr = curr->children.back();
-            continue;
+        } else {
+            // find correct index for key >= previous key
+            auto it = std::lower_bound(curr->keys.begin(), curr->keys.end(), key);
+            int i = static_cast<int>(it - curr->keys.begin());
+            curr = curr->children[i];
         }
-
-        int i = 0;
-        while (i < (curr->keys.size()) && key > curr->keys[i]) {
-            ++i;
-        }
-        curr = curr->children[i];
     }
     return curr;
 }

@@ -1,2 +1,2 @@
 # BPlusTree
-A simple implementation of a B+ tree in C++
+A simple implementation of a B+ Tree in C++

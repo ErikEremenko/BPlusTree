@@ -85,8 +85,8 @@ void Node::split(BPlusTree *tree) {
         }
     } else {
         // internal node
-        int promotedKey = this->keys.at(index); // saving it from being erased
-        auto sibling = new Node(false);
+        const int promotedKey = this->keys.at(index); // saving it from being erased
+        const auto sibling = new Node(false);
         sibling->keys.insert(sibling->keys.end(), keys.begin() + index + 1, keys.end());
         sibling->children.insert(sibling->children.end(), children.begin() + index + 1, children.end());
 
